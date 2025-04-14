@@ -69,7 +69,7 @@ class ProductController extends GetxController {
   List<Product> get flashSaleProducts {
     return isFlashSaleTime
         ? allProducts
-            .where((p) => p.category.toLowerCase().contains("flash"))
+            .where((p) => p.category.toLowerCase().contains(""))
             .toList()
         : [];
   }

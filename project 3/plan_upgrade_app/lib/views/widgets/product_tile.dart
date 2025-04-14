@@ -12,8 +12,6 @@ class ProductTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ProductController controller = Get.find();
-    final inCart = controller.cart.containsKey(product);
-    final quantity = controller.cart[product] ?? 0;
 
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -22,35 +20,40 @@ class ProductTile extends StatelessWidget {
         leading: Image.network(product.image, width: 50, height: 50),
         title: Text(product.title),
         subtitle: Text("₦${product.price}"),
-        trailing: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            if (product.stock == 0)
-              Text("Out of Stock", style: TextStyle(color: Colors.red))
-            else if (inCart)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.remove_circle_outline),
-                    onPressed: () => controller.removeFromCart(product),
-                  ),
-                  Text('$quantity'),
-                  IconButton(
-                    icon: Icon(Icons.add_circle_outline),
-                    onPressed: quantity < product.stock
-                        ? () => controller.addToCart(product)
-                        : null,
-                  ),
-                ],
-              )
-            else
-              ElevatedButton(
-                onPressed: () => controller.addToCart(product),
-                child: Text("Add to Cart"),
-              ),
-          ],
-        ),
+        trailing: Obx(() {
+          final inCart = controller.cart.containsKey(product);
+          final quantity = controller.cart[product] ?? 0;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (product.stock == 0)
+                Text("Out of Stock", style: TextStyle(color: Colors.red))
+              else if (inCart)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.remove_circle_outline),
+                      onPressed: () => controller.removeFromCart(product),
+                    ),
+                    Text('$quantity'),
+                    IconButton(
+                      icon: Icon(Icons.add_circle_outline),
+                      onPressed: quantity < product.stock
+                          ? () => controller.addToCart(product)
+                          : null,
+                    ),
+                  ],
+                )
+              else
+                ElevatedButton(
+                  onPressed: () => controller.addToCart(product),
+                  child: Text("Add to Cart"),
+                ),
+            ],
+          );
+        }),
       ),
     );
   }
@@ -64,8 +67,6 @@ class ProductDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ProductController>();
-    final quantity = controller.cart[product] ?? 0;
-
     return Scaffold(
       appBar: AppBar(title: Text(product.title)),
       body: SingleChildScrollView(
@@ -82,23 +83,28 @@ class ProductDetailPage extends StatelessWidget {
             SizedBox(height: 8),
             Text(product.description),
             SizedBox(height: 16),
-            product.stock == 0
-                ? Text("Out of Stock", style: TextStyle(color: Colors.red))
-                : Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.remove_circle_outline),
-                        onPressed: () => controller.removeFromCart(product),
-                      ),
-                      Text('$quantity'),
-                      IconButton(
-                        icon: Icon(Icons.add_circle_outline),
-                        onPressed: quantity < product.stock
-                            ? () => controller.addToCart(product)
-                            : null,
-                      ),
-                    ],
-                  ),
+            Obx(() {
+              final controller = Get.find<ProductController>();
+              final quantity = controller.cart[product] ?? 0;
+
+              return product.stock == 0
+                  ? Text("Out of Stock", style: TextStyle(color: Colors.red))
+                  : Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.remove_circle_outline),
+                          onPressed: () => controller.removeFromCart(product),
+                        ),
+                        Text('$quantity'),
+                        IconButton(
+                          icon: Icon(Icons.add_circle_outline),
+                          onPressed: quantity < product.stock
+                              ? () => controller.addToCart(product)
+                              : null,
+                        ),
+                      ],
+                    );
+            }),
             SizedBox(height: 20),
             Obx(() {
               final suggestions = controller.suggestions;

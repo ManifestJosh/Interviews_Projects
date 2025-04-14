@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:plan_upgrade_app/views/cartPage.dart';
+import 'package:plan_upgrade_app/views/upgrade.dart';
 import '../controllers/product_controller.dart';
 import '../models/product.dart';
 import 'widgets/flashsales.dart';
@@ -17,9 +18,39 @@ class ProductListPage extends StatelessWidget {
         title: Text('Products (${controller.userPlan.value} Plan)'),
         actions: [
           IconButton(
-            icon: Icon(Icons.shopping_cart),
-            onPressed: () => Get.to(() => CartPage()),
-          )
+              onPressed: () => Get.to(() => UpgradePage()),
+              icon: Icon(Icons.upgrade)),
+          Stack(
+            children: [
+              IconButton(
+                icon: Icon(Icons.shopping_cart),
+                onPressed: () => Get.to(() => CartPage()),
+              ),
+              Obx(() {
+                final cartItemsCount = controller.cart.length;
+                return cartItemsCount > 0
+                    ? Positioned(
+                        right: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '$cartItemsCount',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      )
+                    : SizedBox.shrink();
+              }),
+            ],
+          ),
         ],
       ),
       body: Column(
