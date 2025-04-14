@@ -4,9 +4,19 @@ import '../models/product.dart';
 
 class HiveService {
   static Future<void> init() async {
+    // Safely delete the box if it exists to avoid incompatible type errors
+    if (Hive.isBoxOpen('products')) {
+      await Hive.box<Product>('products').clear();
+      await Hive.box<Product>('products').close();
+      await Hive.deleteBoxFromDisk('products');
+    } else if (await Hive.boxExists('products')) {
+      await Hive.deleteBoxFromDisk('products');
+    }
+
     if (!Hive.isBoxOpen('products')) {
       await Hive.openBox<Product>('products');
     }
+
     if (!Hive.isBoxOpen('search_keywords')) {
       await Hive.openBox('search_keywords');
     }

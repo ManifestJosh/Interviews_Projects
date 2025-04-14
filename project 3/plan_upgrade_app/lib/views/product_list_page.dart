@@ -1,49 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:plan_upgrade_app/views/cartPage.dart';
 import '../controllers/product_controller.dart';
+import '../models/product.dart';
+import 'widgets/flashsales.dart';
 import 'widgets/product_tile.dart';
 import 'widgets/search_bar.dart';
 
 class ProductListPage extends StatelessWidget {
-  final controller = Get.put(ProductController());
+  final ProductController controller = Get.put(ProductController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Products')),
+      appBar: AppBar(
+        title: Text('Products (${controller.userPlan.value} Plan)'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.shopping_cart),
+            onPressed: () => Get.to(() => CartPage()),
+          )
+        ],
+      ),
       body: Column(
         children: [
-          SearchBarWidget(),
+          Builder(builder: (_) {
+            final flashSale = controller.isFlashSaleTime; // non-reactive getter
+            return flashSale
+                ? FlashSaleWidget()
+                : Container(
+                    padding: EdgeInsets.all(16),
+                    child: Text(
+                      "🕗 Get ready for the Flash Sale from 8:00 AM to 12:30 PM!",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  );
+          }),
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value &&
-                  controller.displayedProducts.isEmpty) {
+              if (controller.isLoading.value) {
                 return Center(child: CircularProgressIndicator());
               }
 
-              return RefreshIndicator(
-                onRefresh: controller.fetchProducts,
-                child: GridView.builder(
-                  controller: controller.scrollController,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 1.1,
-                      crossAxisSpacing: 15),
-                  itemCount: controller.displayedProducts.length +
-                      (controller.isLastPage.value ? 0 : 1),
-                  itemBuilder: (context, index) {
-                    if (index < controller.displayedProducts.length) {
-                      return ProductTile(
-                          product: controller.displayedProducts[index]);
-                    } else {
-                      return Center(
-                          child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: CircularProgressIndicator(),
-                      ));
-                    }
-                  },
-                ),
+              return ListView.builder(
+                controller: controller.scrollController,
+                itemCount: controller.displayedProducts.length,
+                itemBuilder: (context, index) {
+                  final product = controller.displayedProducts[index];
+                  return ProductTile(product: product);
+                },
               );
             }),
           ),

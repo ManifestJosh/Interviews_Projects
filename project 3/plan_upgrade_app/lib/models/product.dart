@@ -14,23 +14,29 @@ class Product {
   final double price;
   @HiveField(4)
   final String image;
+  @HiveField(5)
+  final int stock;
+  @HiveField(6)
+  final String category;
 
-  Product({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.price,
-    required this.image,
-  });
+  Product(
+      {required this.id,
+      required this.title,
+      required this.description,
+      required this.price,
+      required this.image,
+      required this.stock,
+      required this.category});
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      price: (json['price'] as num).toDouble(),
-      image: json['image'],
-    );
+        id: json['id'],
+        title: json['title'],
+        description: json['description'],
+        price: (json['price'] as num).toDouble(),
+        image: json['thumbnail'],
+        stock: json['stock'],
+        category: json['category']);
   }
 
   Map<String, dynamic> toJson() => {
@@ -38,6 +44,8 @@ class Product {
         'title': title,
         'description': description,
         'price': price,
-        'image': image,
+        'thumbnail': image,
+        'stock': stock,
+        'category': category
       };
 }
